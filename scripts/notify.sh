@@ -168,6 +168,23 @@ if [ -z "$MESSAGE" ]; then
   esac
 fi
 
+# --- クロスプラットフォーム音声再生 ---
+play_audio() {
+  local file="$1" vol="${2:-$DEFAULT_VOLUME}"
+  if command -v afplay >/dev/null 2>&1; then
+    afplay -v "$vol" "$file" 2>/dev/null
+  elif command -v paplay >/dev/null 2>&1; then
+    paplay --volume="$(python3 -c "print(int(float('$vol') * 65536))" 2>/dev/null || echo 65536)" "$file" 2>/dev/null
+  elif command -v aplay >/dev/null 2>&1; then
+    aplay -q "$file" 2>/dev/null
+  elif command -v play >/dev/null 2>&1; then
+    play -q -v "$vol" "$file" 2>/dev/null
+  else
+    echo "[claude-voice-notify] 音声再生コマンドが見つかりません (afplay/paplay/aplay/play)" >&2
+    return 1
+  fi
+}
+
 # --- VOICEVOX ---
 try_voicevox() {
   if ! curl -s --max-time 0.5 "$VOICEVOX_URL/version" > /dev/null 2>&1; then
@@ -198,7 +215,7 @@ print(json.dumps(q))
     "$VOICEVOX_URL/synthesis?speaker=$SPEAKER")
 
   if [ "$HTTP_CODE" = "200" ] && [ -s "$TMPFILE" ]; then
-    afplay -v "$DEFAULT_VOLUME" "$TMPFILE" 2>/dev/null
+    play_audio "$TMPFILE" "$DEFAULT_VOLUME"
     rm -f "$TMPFILE" 2>/dev/null
     return 0
   else
@@ -237,7 +254,7 @@ else:
 " > "$TMPFILE" 2>&1)
 
   if [ $? -eq 0 ] && [ -s "$TMPFILE" ]; then
-    afplay -v "$DEFAULT_VOLUME" "$TMPFILE" 2>/dev/null
+    play_audio "$TMPFILE" "$DEFAULT_VOLUME"
     rm -f "$TMPFILE" 2>/dev/null
     return 0
   else
