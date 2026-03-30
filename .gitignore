@@ -1,0 +1,9 @@
+# Voice config (user-specific settings)
+scripts/.voice-config
+scripts/.voice-enabled
+
+# OS
+.DS_Store
+
+# Claude auto-generated
+**/CLAUDE.md
