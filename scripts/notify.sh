@@ -27,6 +27,17 @@ if [ -f "$CONFIG_FILE" ]; then
   source "$CONFIG_FILE"
 fi
 
+# --- 設定書き込みヘルパー（chmod 600でAPIキー保護） ---
+write_config() {
+  local key="$1" value="$2"
+  if [ -f "$CONFIG_FILE" ]; then
+    grep -v "^${key}=" "$CONFIG_FILE" > "$CONFIG_FILE.tmp" 2>/dev/null || true
+    mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
+  fi
+  echo "${key}=${value}" >> "$CONFIG_FILE"
+  chmod 600 "$CONFIG_FILE"
+}
+
 # --- コマンド処理 ---
 case "$1" in
   on)
@@ -76,12 +87,7 @@ for s in speakers:
       echo "キャラ一覧: notify.sh list"
       exit 1
     fi
-    # 設定ファイルを更新
-    if [ -f "$CONFIG_FILE" ]; then
-      grep -v "^DEFAULT_SPEAKER=" "$CONFIG_FILE" > "$CONFIG_FILE.tmp" || true
-      mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-    fi
-    echo "DEFAULT_SPEAKER=$NEW_SPEAKER" >> "$CONFIG_FILE"
+    write_config "DEFAULT_SPEAKER" "$NEW_SPEAKER"
     # キャラ名を取得
     CHAR_NAME=$(curl -s --max-time 2 "$VOICEVOX_URL/speakers" 2>/dev/null | python3 -c "
 import json, sys
@@ -102,11 +108,7 @@ print('ID $NEW_SPEAKER')
       echo "使い方: notify.sh set-provider <voicevox|google>"
       exit 1
     fi
-    if [ -f "$CONFIG_FILE" ]; then
-      grep -v "^DEFAULT_PROVIDER=" "$CONFIG_FILE" > "$CONFIG_FILE.tmp" || true
-      mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-    fi
-    echo "DEFAULT_PROVIDER=$NEW_PROVIDER" >> "$CONFIG_FILE"
+    write_config "DEFAULT_PROVIDER" "$NEW_PROVIDER"
     echo "[claude-voice-notify] プロバイダーを変更: $NEW_PROVIDER"
     exit 0
     ;;
@@ -116,21 +118,13 @@ print('ID $NEW_SPEAKER')
       echo "エラー: 音量は 0.0〜1.0 の範囲で指定してください"
       exit 1
     fi
-    if [ -f "$CONFIG_FILE" ]; then
-      grep -v "^DEFAULT_VOLUME=" "$CONFIG_FILE" > "$CONFIG_FILE.tmp" || true
-      mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-    fi
-    echo "DEFAULT_VOLUME=$NEW_VOLUME" >> "$CONFIG_FILE"
+    write_config "DEFAULT_VOLUME" "$NEW_VOLUME"
     echo "[claude-voice-notify] デフォルト音量を変更: ${NEW_VOLUME}"
     exit 0
     ;;
   set-speed)
     NEW_SPEED="${2:-1.0}"
-    if [ -f "$CONFIG_FILE" ]; then
-      grep -v "^DEFAULT_SPEED=" "$CONFIG_FILE" > "$CONFIG_FILE.tmp" || true
-      mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-    fi
-    echo "DEFAULT_SPEED=$NEW_SPEED" >> "$CONFIG_FILE"
+    write_config "DEFAULT_SPEED" "$NEW_SPEED"
     echo "[claude-voice-notify] デフォルト速度を変更: ${NEW_SPEED}x"
     exit 0
     ;;
@@ -140,21 +134,13 @@ print('ID $NEW_SPEAKER')
       echo "使い方: notify.sh set-google-key <API_KEY>"
       exit 1
     fi
-    if [ -f "$CONFIG_FILE" ]; then
-      grep -v "^GOOGLE_API_KEY=" "$CONFIG_FILE" > "$CONFIG_FILE.tmp" || true
-      mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-    fi
-    echo "GOOGLE_API_KEY=$NEW_KEY" >> "$CONFIG_FILE"
+    write_config "GOOGLE_API_KEY" "$NEW_KEY"
     echo "[claude-voice-notify] Google TTS APIキーを設定しました"
     exit 0
     ;;
   set-google-voice)
     NEW_VOICE="${2:-ja-JP-Neural2-B}"
-    if [ -f "$CONFIG_FILE" ]; then
-      grep -v "^GOOGLE_VOICE=" "$CONFIG_FILE" > "$CONFIG_FILE.tmp" || true
-      mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
-    fi
-    echo "GOOGLE_VOICE=$NEW_VOICE" >> "$CONFIG_FILE"
+    write_config "GOOGLE_VOICE" "$NEW_VOICE"
     echo "[claude-voice-notify] Google TTS音声を変更: $NEW_VOICE"
     exit 0
     ;;
