@@ -5,5 +5,10 @@
   "author": {
     "name": "kubouchiyuya"
   },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubouchiyuya/claude-voice-plugin"
+  },
   "keywords": ["voice", "notification", "voicevox", "tts", "audio", "plugin"]
 }

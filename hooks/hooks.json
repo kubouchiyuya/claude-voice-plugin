@@ -1,5 +1,5 @@
 {
-  "description": "Voice Box 音声通知 - 自動通知フック（コンテキスト消費ゼロ）",
+  "description": "Voice Box 音声通知 - MCP版との排他制御付き自動通知フック",
   "hooks": {
     "Notification": [
       {
@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/notify.sh '確認をお願いします' confirm",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/check-backend.sh '確認をお願いします' confirm",
             "timeout": 30
           }
         ]
@@ -19,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/notify.sh 'タスクが完了しました' complete",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/check-backend.sh 'タスクが完了しました' complete",
             "timeout": 30
           }
         ]
