@@ -1,0 +1,29 @@
+{
+  "description": "Voice Box 音声通知 - 自動通知フック（コンテキスト消費ゼロ）",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/notify.sh '確認をお願いします' confirm",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/notify.sh 'タスクが完了しました' complete",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

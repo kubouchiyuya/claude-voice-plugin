@@ -1,0 +1,9 @@
+{
+  "name": "voice-notify",
+  "version": "2.0.0",
+  "description": "Claude Code Voice Box - VOICEVOX音声通知プラグイン。コンテキスト消費ゼロの自動音声通知 + オンデマンドカスタム音声スキル。MCP不要でフル機能を発揮。",
+  "author": {
+    "name": "kubouchiyuya"
+  },
+  "keywords": ["voice", "notification", "voicevox", "tts", "audio", "plugin"]
+}
