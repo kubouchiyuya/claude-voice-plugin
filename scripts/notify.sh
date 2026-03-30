@@ -231,8 +231,9 @@ try_google_tts() {
   TMPFILE=$(mktemp /tmp/claude-voice-XXXXXX.mp3)
 
   RESPONSE=$(curl -s --max-time 10 -X POST \
-    "https://texttospeech.googleapis.com/v1/text:synthesize?key=$GOOGLE_API_KEY" \
+    "https://texttospeech.googleapis.com/v1/text:synthesize" \
     -H "Content-Type: application/json" \
+    -H "X-Goog-Api-Key: $GOOGLE_API_KEY" \
     -d "{
       \"input\": {\"text\": $(python3 -c "import json,sys; print(json.dumps(sys.argv[1]))" "$MESSAGE")},
       \"voice\": {\"languageCode\": \"ja-JP\", \"name\": \"$GOOGLE_VOICE\"},
