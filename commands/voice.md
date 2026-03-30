@@ -1,7 +1,7 @@
 ---
 description: "音声通知の管理 - テスト再生、ON/OFF切替、設定変更"
-argument-hint: "[test|on|off|status|speak <message>]"
-allowed-tools: [Bash, Read]
+argument-hint: "[test|on|off|status|speak <message>|settings]"
+allowed-tools: [Bash]
 ---
 
 # /voice コマンド

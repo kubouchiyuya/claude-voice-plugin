@@ -13,9 +13,10 @@ Claude Code 用 VOICEVOX 音声通知プラグイン。MCP サーバー不要で
 
 ## 前提条件
 
+- **macOS のみ** — `afplay` コマンドを使用（Linux/Windows は非対応）
 - [VOICEVOX](https://voicevox.hiroshiba.jp/) が `http://localhost:50021` で起動していること
-- macOS（`afplay` コマンドを使用）
 - Python 3（URL エンコード・JSON パースに使用）
+- Google Cloud TTS を使う場合: APIキーが必要（`./scripts/notify.sh set-google-key <KEY>`）
 
 ## インストール
 
@@ -115,7 +116,7 @@ Claude に話しかけるだけで、Skill が自動でロードされます：
 
 ```bash
 DEFAULT_SPEAKER=3        # VOICEVOXスピーカーID
-DEFAULT_SPEED=1.5        # 読み上げ速度（0.5〜2.0）
+DEFAULT_SPEED=1.3        # 読み上げ速度（0.5〜2.0）
 DEFAULT_VOLUME=0.3       # 音量（0.0〜1.0）
 DEFAULT_PROVIDER=voicevox  # TTS プロバイダー
 ```
@@ -124,6 +125,51 @@ DEFAULT_PROVIDER=voicevox  # TTS プロバイダー
 
 - **VOICEVOX** (デフォルト) - 無料・ローカル実行
 - **Google Cloud TTS** - 高品質・API キー必要
+
+## VS Code 拡張機能
+
+ステータスバーからVoice ON/OFFとVB設定パネルを操作できます。
+
+```bash
+cd vscode-extension
+npm install && npm run compile
+# VSIXパッケージ作成
+npx @vscode/vsce package --allow-missing-repository
+# インストール
+code --install-extension claude-voice-notify-panel-2.0.0.vsix
+```
+
+MCP版とPlugin版の両方がインストールされている場合、VB設定パネル内でバックエンド切り替えが可能です。
+
+## MCP版との違い
+
+Plugin版に**含まれないもの**（MCP版のみ）:
+
+- TypeScript 8プロバイダー（CoeiroInk, AivisSpeech, StyleBertVITS2, Fish Audio, ElevenLabs, OpenAI）
+- セットアップウィザード（setup.sh）— 対話式7ステップガイド
+- Windows 対応（notify.ps1, setup.bat）
+- GitHub Star 通知ワークフロー（スターゲートは両方対応）
+- 自動更新スクリプト（update.sh）
+
+Plugin版の**追加機能**:
+
+- Hooks 自動通知（コンテキスト0トークン）
+- Skill オンデマンドロード（必要な時だけ展開）
+- /voice スラッシュコマンド
+- プラグインエコシステム統合
+
+## アンインストール
+
+```bash
+# 1. settings.json から削除
+# "voice-notify": true を削除
+
+# 2. プラグインディレクトリ削除
+rm -rf ~/.claude/plugins/voice-notify
+
+# 3. VS Code 拡張削除（入れている場合）
+code --uninstall-extension kubouchiyuya.claude-voice-notify-panel
+```
 
 ## ライセンス
 

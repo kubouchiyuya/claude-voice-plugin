@@ -1,0 +1,54 @@
+{
+  "name": "claude-voice-notify-panel",
+  "displayName": "Claude Voice Notify",
+  "description": "VOICEVOX音声通知のON/OFF切り替えと設定パネル（MCP版/Plugin版自動検出・切り替え対応）",
+  "version": "2.0.0",
+  "publisher": "kubouchiyuya",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "claude-voice.toggleOnOff",
+        "title": "Claude Voice: ON/OFF 切り替え"
+      },
+      {
+        "command": "claude-voice.openSettings",
+        "title": "Claude Voice: ⚙️ VB設定パネル"
+      },
+      {
+        "command": "claude-voice.selectCharacter",
+        "title": "Claude Voice: 🎤 キャラ変更"
+      },
+      {
+        "command": "claude-voice.adjustSpeed",
+        "title": "Claude Voice: ⏩ 速度調整"
+      },
+      {
+        "command": "claude-voice.adjustVolume",
+        "title": "Claude Voice: 🔉 音量調整"
+      },
+      {
+        "command": "claude-voice.testPlay",
+        "title": "Claude Voice: 🔊 テスト再生"
+      },
+      {
+        "command": "claude-voice.switchBackend",
+        "title": "Claude Voice: 🔄 バックエンド切り替え (MCP/Plugin)"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}
