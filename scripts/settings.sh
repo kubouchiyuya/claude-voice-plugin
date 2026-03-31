@@ -12,6 +12,9 @@ DEFAULT_SPEAKER=3
 DEFAULT_SPEED="1.3"
 DEFAULT_VOLUME="0.3"
 DEFAULT_PROVIDER="voicevox"
+VOICE_LANG="ja"
+TERM_EXPLAIN="on"
+VOICE_ENABLED="on"
 if [ -f "$CONFIG_FILE" ]; then source "$CONFIG_FILE"; fi
 
 # 現在のキャラ名取得
@@ -32,9 +35,13 @@ show_menu() {
   clear 2>/dev/null || true
   CHAR_NAME=$(get_char_name)
   ENABLED="🔊 ON"
-  if [ -f "$SCRIPT_DIR/.voice-enabled" ] && [ "$(cat "$SCRIPT_DIR/.voice-enabled")" = "0" ]; then
+  if [ "${VOICE_ENABLED:-on}" = "off" ] || { [ -f "$SCRIPT_DIR/.voice-enabled" ] && [ "$(cat "$SCRIPT_DIR/.voice-enabled")" = "0" ]; }; then
     ENABLED="🔇 OFF"
   fi
+  LANG_LABEL="日本語 (ja)"
+  if [ "${VOICE_LANG:-ja}" = "en" ]; then LANG_LABEL="English (en)"; fi
+  TE_LABEL="ON"
+  if [ "${TERM_EXPLAIN:-on}" = "off" ]; then TE_LABEL="OFF"; fi
 
   echo ""
   echo "  ╔══════════════════════════════════════════╗"
@@ -56,16 +63,20 @@ show_menu() {
   show_volume_gauge "$DEFAULT_VOLUME"
 
   echo "  エンジン: $DEFAULT_PROVIDER"
+  echo "  言語: $LANG_LABEL"
+  echo "  用語説明: $TE_LABEL"
   echo "  ─────────────────────────────────────────"
   echo ""
   echo "  操作:"
-  echo "    1) 🔊 音声 ON/OFF 切り替え"
-  echo "    2) 🎤 キャラクター変更"
-  echo "    3) 🗾 方言で選ぶ"
-  echo "    4) ⏩ 速度調整"
-  echo "    5) 🔉 音量調整"
-  echo "    6) 🔧 エンジン変更"
-  echo "    7) 🔊 テスト再生"
+  echo "    1) 🔊 音声 ON/OFF（現在: $ENABLED）"
+  echo "    2) 🔉 音量設定（0.1〜1.0）"
+  echo "    3) ⏩ 速度設定（0.5〜2.0）"
+  echo "    4) 🎤 キャラクター設定"
+  echo "    5) 🗾 言語設定（ja/en）（現在: $LANG_LABEL）"
+  echo "    6) 📚 用語説明モード ON/OFF（現在: $TE_LABEL）"
+  echo "    7) 🔧 エンジン変更"
+  echo "    8) 🔊 テスト再生"
+  echo "    9) 🗾 方言で選ぶ"
   echo "    q) 閉じる"
   echo ""
   read -p "  選択: " CHOICE
@@ -318,22 +329,59 @@ for s in speakers:
   fi
 }
 
+lang_select() {
+  echo ""
+  echo "  🗾 言語設定"
+  echo ""
+  echo "    1) 日本語 (ja) — デフォルト"
+  echo "    2) English (en)"
+  echo "    q) 戻る"
+  echo ""
+  read -p "  選択: " LCHOICE
+  case "$LCHOICE" in
+    1)
+      "$NOTIFY" set-lang ja
+      VOICE_LANG="ja"
+      ;;
+    2)
+      "$NOTIFY" set-lang en
+      VOICE_LANG="en"
+      ;;
+    q|Q) return ;;
+  esac
+}
+
+term_explain_toggle() {
+  if [ "${TERM_EXPLAIN:-on}" = "on" ]; then
+    "$NOTIFY" set-term-explain off
+    TERM_EXPLAIN="off"
+    "$NOTIFY" "用語説明をオフにしました。必要なときはいつでもオンに戻せますよ。" complete
+  else
+    "$NOTIFY" set-term-explain on
+    TERM_EXPLAIN="on"
+    "$NOTIFY" "用語説明モードをオンにしました。専門用語を分かりやすく説明します。" complete
+  fi
+}
+
 # --- メインループ ---
 while true; do
   show_menu
   case "$CHOICE" in
     1)
-      if [ -f "$SCRIPT_DIR/.voice-enabled" ] && [ "$(cat "$SCRIPT_DIR/.voice-enabled")" = "0" ]; then
+      if [ "${VOICE_ENABLED:-on}" = "off" ] || { [ -f "$SCRIPT_DIR/.voice-enabled" ] && [ "$(cat "$SCRIPT_DIR/.voice-enabled")" = "0" ]; }; then
         "$NOTIFY" on
+        VOICE_ENABLED="on"
       else
         "$NOTIFY" off
+        VOICE_ENABLED="off"
       fi
       ;;
-    2) character_select ;;
-    3) dialect_select ;;
-    4) speed_adjust ;;
-    5) volume_adjust ;;
-    6)
+    2) volume_adjust ;;
+    3) speed_adjust ;;
+    4) character_select ;;
+    5) lang_select ;;
+    6) term_explain_toggle ;;
+    7)
       echo ""
       echo "  エンジン: voicevox / google / coeiroink / aivis_speech"
       echo "           style_bert_vits2 / fish_audio / elevenlabs / openai"
@@ -343,9 +391,10 @@ while true; do
         DEFAULT_PROVIDER="$NEW_ENG"
       fi
       ;;
-    7)
+    8)
       "$NOTIFY" "テスト再生です。この声とスピードで通知されます" complete
       ;;
+    9) dialect_select ;;
     q|Q)
       echo "  設定を保存しました。"
       exit 0

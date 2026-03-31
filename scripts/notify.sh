@@ -22,9 +22,17 @@ DEFAULT_SPEED="1.3"
 DEFAULT_VOLUME="0.3"
 GOOGLE_VOICE="${GOOGLE_TTS_VOICE:-ja-JP-Neural2-B}"
 GOOGLE_API_KEY="${GOOGLE_TTS_API_KEY:-}"
+VOICE_LANG="ja"
+TERM_EXPLAIN="on"
+VOICE_ENABLED="on"
 
 if [ -f "$CONFIG_FILE" ]; then
   source "$CONFIG_FILE"
+fi
+
+# VOICE_ENABLED が off の場合は即終了
+if [ "${VOICE_ENABLED}" = "off" ]; then
+  exit 0
 fi
 
 # --- 設定書き込みヘルパー（chmod 600でAPIキー保護） ---
@@ -42,11 +50,13 @@ write_config() {
 case "$1" in
   on)
     echo "1" > "$STATE_FILE"
+    write_config "VOICE_ENABLED" "on"
     echo "[claude-voice-notify] 音声通知: ON"
     exit 0
     ;;
   off)
     echo "0" > "$STATE_FILE"
+    write_config "VOICE_ENABLED" "off"
     echo "[claude-voice-notify] 音声通知: OFF"
     exit 0
     ;;
@@ -128,6 +138,34 @@ print('ID $NEW_SPEAKER')
     echo "[claude-voice-notify] デフォルト速度を変更: ${NEW_SPEED}x"
     exit 0
     ;;
+  set-lang)
+    NEW_LANG="${2:-ja}"
+    if [ "$NEW_LANG" != "ja" ] && [ "$NEW_LANG" != "en" ]; then
+      echo "使い方: notify.sh set-lang <ja|en>"
+      exit 1
+    fi
+    write_config "VOICE_LANG" "$NEW_LANG"
+    if [ "$NEW_LANG" = "ja" ]; then
+      echo "[claude-voice-notify] 言語を日本語に変更しました"
+    else
+      echo "[claude-voice-notify] Language changed to English"
+    fi
+    exit 0
+    ;;
+  set-term-explain)
+    NEW_TE="${2:-on}"
+    if [ "$NEW_TE" != "on" ] && [ "$NEW_TE" != "off" ]; then
+      echo "使い方: notify.sh set-term-explain <on|off>"
+      exit 1
+    fi
+    write_config "TERM_EXPLAIN" "$NEW_TE"
+    if [ "$NEW_TE" = "on" ]; then
+      echo "[claude-voice-notify] 用語説明モード: ON"
+    else
+      echo "[claude-voice-notify] 用語説明モード: OFF"
+    fi
+    exit 0
+    ;;
   set-google-key)
     NEW_KEY="${2:-}"
     if [ -z "$NEW_KEY" ]; then
@@ -159,13 +197,34 @@ SPEED="${4:-$DEFAULT_SPEED}"
 PROVIDER="${NOTIFY_PROVIDER:-$DEFAULT_PROVIDER}"
 
 if [ -z "$MESSAGE" ]; then
-  case "$TYPE" in
-    complete) MESSAGE="タスクが完了しました" ;;
-    confirm)  MESSAGE="確認をお願いします" ;;
-    error)    MESSAGE="エラーが発生しました" ;;
-    explain)  MESSAGE="解説を開始します" ;;
-    *)        MESSAGE="お知らせがあります" ;;
-  esac
+  if [ "${VOICE_LANG:-ja}" = "en" ]; then
+    case "$TYPE" in
+      complete) MESSAGE="Task completed" ;;
+      confirm)  MESSAGE="Please confirm" ;;
+      error)    MESSAGE="An error occurred" ;;
+      explain)  MESSAGE="Starting explanation" ;;
+      *)        MESSAGE="You have a notification" ;;
+    esac
+  else
+    case "$TYPE" in
+      complete) MESSAGE="タスクが完了しました" ;;
+      confirm)  MESSAGE="確認をお願いします" ;;
+      error)    MESSAGE="エラーが発生しました" ;;
+      explain)  MESSAGE="解説を開始します" ;;
+      *)        MESSAGE="お知らせがあります" ;;
+    esac
+  fi
+fi
+
+# --- 用語説明モード: 専門用語に補足を挿入 ---
+if [ "${TERM_EXPLAIN:-on}" = "on" ] && [ "${VOICE_LANG:-ja}" = "ja" ]; then
+  MESSAGE=$(echo "$MESSAGE" | sed \
+    -e 's/\bMCP\b/MCP（エムシーピー、AIツール連携の仕組み）/g' \
+    -e 's/\bHook\b/Hook（フック、自動実行の仕組み）/g' \
+    -e 's/\bクローン\b/クローン（ダウンロードしてコピーすること）/g' \
+    -e 's/\bリポジトリ\b/リポジトリ（ファイルを管理する場所）/g' \
+    -e 's/\bコミット\b/コミット（変更を保存すること）/g' \
+    2>/dev/null || echo "$MESSAGE")
 fi
 
 # --- クロスプラットフォーム音声再生 ---
