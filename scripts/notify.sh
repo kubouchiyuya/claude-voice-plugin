@@ -1,4 +1,10 @@
 #!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# ⭐ スターゲート（必須認証）
+source "$SCRIPT_DIR/../star-gate.sh"
+check_star "claude-voice-plugin"
+
 # claude-voice-notify - スタンドアロン音声通知スクリプト
 #
 # 使い方:

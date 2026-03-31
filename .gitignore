@@ -4,6 +4,9 @@ scripts/.voice-config.tmp
 scripts/.voice-enabled
 scripts/.active-backend
 
+# Star gate cache (per-user auth)
+.star-verified
+
 # VS Code extension build
 vscode-extension/out/
 vscode-extension/node_modules/
