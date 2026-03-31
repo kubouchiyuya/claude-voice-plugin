@@ -1,0 +1,29 @@
+name: 🧹 Stale Issue/PR Cleanup
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # 毎週日曜0時
+  workflow_dispatch:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: |
+            このIssueは30日間活動がありませんでした。
+            引き続き必要な場合はコメントをお願いします。
+          stale-pr-message: |
+            このPRは30日間活動がありませんでした。
+            引き続き必要な場合はコメントをお願いします。
+          stale-issue-label: 'stale'
+          stale-pr-label: 'stale'
+          days-before-stale: 30
+          days-before-close: 7
+          exempt-issue-labels: 'pinned,security'
+          exempt-pr-labels: 'pinned,security'
