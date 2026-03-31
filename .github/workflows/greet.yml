@@ -1,0 +1,33 @@
+name: 👋 Greet New Contributors
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+  watch:
+    types: [started]
+
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: |
+            👋 はじめまして！Issueを開いてくださってありがとうございます。
+
+            まだ ⭐ Star を押していなければ、ぜひ押してください！開発の励みになります。
+            → https://github.com/${{ github.repository }}
+
+            内容を確認次第、対応いたします。お待ちください！
+          pr-message: |
+            👋 はじめてのPull Requestありがとうございます！
+
+            内容を確認してレビューします。少々お待ちください。
+            まだ ⭐ Star を押していなければ、ぜひ！
+            → https://github.com/${{ github.repository }}
