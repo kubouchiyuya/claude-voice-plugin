@@ -1,52 +1,64 @@
-# Claude Voice Plugin
+<div align="center">
 
-> ⭐ **クローン（ダウンロード）してくれた方へ**: このツールが役立ったら、ぜひ「Star」を押してください！開発の励みになります。
+<a href="./README.md"><img src="https://img.shields.io/badge/🌐%20English-active-F97316?style=flat-square" /></a>
+<a href="./README_ja.md"><img src="https://img.shields.io/badge/🇯🇵%20日本語-gray?style=flat-square" /></a>
 
-> 💡 **エンジニア以外の方へ**: このツールは専門知識がなくても使えるよう設計されています。
-> 初回起動時に音声で使い方を案内します。用語がわからない場合は「用語説明モード」（デフォルトON）が自動的に説明します。
+<br/><br/>
 
-> 🎙️ **VS Code拡張機能について**: このリポジトリにはVS Code拡張機能が含まれています。
-> クローンするだけで自動的に使えるようになります。オンライン会議中は設定パネル（`./scripts/settings.sh`）から音声をOFFにできます。
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,20,30&height=200&section=header&text=claude-voice-plugin&fontSize=40&fontColor=fff&animation=fadeIn&desc=Zero-Context%20Voice%20Plugin%20for%20Claude%20Code&descSize=18&descAlignY=70" width="100%"/>
 
-Claude Code 用 VOICEVOX 音声通知プラグイン。MCP サーバー不要でコンテキスト消費ゼロの自動音声通知を実現。
+<img src="https://raw.githubusercontent.com/kubouchiyuya/kubouchiyuya/main/avatar.jpg" width="120" style="border-radius:50%; margin-top:16px"/>
 
-## MCP版との違い
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=22&duration=3000&pause=1000&color=F97316&center=true&vCenter=true&multiline=true&width=900&height=140&lines=Zero+Context+Cost+%F0%9F%94%87;Hooks-Based+Auto+Notify+%E2%80%94+No+MCP+Server+Needed;VOICEVOX+Powered+%E2%80%94+Free+%26+Local)](https://github.com/DenverCoder1/readme-typing-svg)
 
-| | MCP版 | Plugin版（本リポジトリ） |
-|---|---|---|
-| 常時コンテキストコスト | ~600-950 tok | **0 tok** |
-| カスタム音声使用時 | +200 tok | +200 tok（Bash経由） |
-| 自動通知 | MCP tool呼出 | Hooks（コンテキスト0） |
-| 機能 | 5ツール | **全機能維持** |
+[![GitHub](https://img.shields.io/badge/GitHub-kubouchiyuya-181717?style=for-the-badge&logo=github)](https://github.com/kubouchiyuya)
+[![X](https://img.shields.io/badge/@kubouchiyuya-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/kubouchiyuya)
+[![LP](https://img.shields.io/badge/Consulting%20LP-F97316?style=for-the-badge&logo=vercel&logoColor=white)](https://consulting-payment-tool.vercel.app)
 
-## 前提条件
+![Stars](https://img.shields.io/github/stars/kubouchiyuya/claude-voice-plugin?style=flat-square&color=F97316)
+![Forks](https://img.shields.io/github/forks/kubouchiyuya/claude-voice-plugin?style=flat-square&color=gray)
+![License](https://img.shields.io/github/license/kubouchiyuya/claude-voice-plugin?style=flat-square)
+<img src="https://komarev.com/ghpvc/?username=kubouchiyuya&label=Views&color=F97316&style=flat-square"/>
 
-- **macOS のみ** — `afplay` コマンドを使用（Linux/Windows は非対応）
-- [VOICEVOX](https://voicevox.hiroshiba.jp/) が `http://localhost:50021` で起動していること
-- Python 3（URL エンコード・JSON パースに使用）
-- Google Cloud TTS を使う場合: APIキーが必要（`./scripts/notify.sh set-google-key <KEY>`）
+</div>
 
-## インストール
+---
 
-### 方法1: プラグインディレクトリに配置
+## What This Does
+
+This repository provides the plugin edition of voice notifications for Claude Code. It uses Claude Code Hooks so the automation runs without a standing MCP server and without consuming context tokens.
+
+That makes it the lightest-weight option in the voice stack: local, fast, and ready to attach directly to a Claude Code workflow.
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---|---|
+| Zero context cost | Hooks-triggered notification with no always-on process |
+| Local VOICEVOX | Free default engine on your machine |
+| Optional cloud TTS | Switch providers with configuration only |
+| `/voice` command | Manage voice behavior from inside Claude Code |
+| VS Code support | Toggle voice behavior in the editor |
+| Bash-first design | Simple shell workflow for automation |
+
+---
+
+## 🚀 Quick Start
+
+### Star First
+
+> This repo follows the same star-gated philosophy as the MCP version.
+
+### Install
 
 ```bash
 git clone https://github.com/kubouchiyuya/claude-voice-plugin.git \
   ~/.claude/plugins/voice-notify
 ```
 
-### 方法2: シンボリックリンク
-
-```bash
-git clone https://github.com/kubouchiyuya/claude-voice-plugin.git \
-  ~/Projects/claude-voice-plugin
-
-ln -s ~/Projects/claude-voice-plugin ~/.claude/plugins/voice-notify
-```
-
-### プラグインを有効化
-
-Claude Code の設定（`~/.claude/settings.json`）に追加：
+### Enable
 
 ```json
 {
@@ -56,134 +68,61 @@ Claude Code の設定（`~/.claude/settings.json`）に追加：
 }
 ```
 
-## 構造
-
-```
-claude-voice-plugin/
-├── .claude-plugin/
-│   └── plugin.json          # プラグインメタデータ
-├── hooks/
-│   └── hooks.json           # 自動通知フック（Notification, Stop）
-├── skills/
-│   └── voice-notify/
-│       └── SKILL.md         # カスタム音声スキル定義
-├── commands/
-│   └── voice.md             # /voice スラッシュコマンド
-└── scripts/
-    ├── notify.sh            # 音声通知 CLI
-    └── settings.sh          # 対話式設定パネル
-```
-
-## 使い方
-
-### 自動通知（Hooks - コンテキスト0）
-
-プラグインを有効にするだけで、以下が自動で音声通知されます：
-
-- **Notification イベント** → 「確認をお願いします」
-- **Stop イベント** → 「タスクが完了しました」
-
-### カスタム音声（Skill - オンデマンド）
-
-Claude に話しかけるだけで、Skill が自動でロードされます：
-
-- 「音声でテストして」
-- 「この変更内容を声で説明して」
-- 「音声オフにして」
-
-### /voice コマンド
-
-```
-/voice test      # テスト再生
-/voice on        # 音声ON
-/voice off       # 音声OFF
-/voice status    # 設定確認
-/voice settings  # 設定パネル
-```
-
-### CLI 直接使用
+### Test
 
 ```bash
-# 読み上げ
-./scripts/notify.sh "メッセージ"
-./scripts/notify.sh "メッセージ" complete 3 1.2
-
-# 設定
-./scripts/notify.sh set-speaker 8
-./scripts/notify.sh set-speed 1.2
-./scripts/notify.sh set-volume 0.5
-./scripts/notify.sh list
-
-# ON/OFF
-./scripts/notify.sh on / off / status
+~/.claude/plugins/voice-notify/scripts/notify.sh "Plugin active"
 ```
 
-## 設定
+---
 
-設定は `scripts/.voice-config` に保存されます：
+## 🏗️ Architecture
 
-```bash
-DEFAULT_SPEAKER=3        # VOICEVOXスピーカーID
-DEFAULT_SPEED=1.3        # 読み上げ速度（0.5〜2.0）
-DEFAULT_VOLUME=0.3       # 音量（0.0〜1.0）
-DEFAULT_PROVIDER=voicevox  # TTS プロバイダー
+```mermaid
+graph TD
+    A[Claude Code] -->|Stop / Notification| B[hooks/hooks.json]
+    B -->|shell| C[scripts/notify.sh]
+    C --> D{Provider}
+    D -->|default| E[VOICEVOX localhost:50021]
+    D -->|optional| F[Google Cloud TTS]
+    E --> G[afplay / system playback]
+    F --> G
+    A -->|/voice command| H[commands/voice.md]
+    H --> C
+    A -->|on-demand help| I[skills/voice-notify/SKILL.md]
+    I --> C
 ```
 
-## 対応プロバイダー
+---
 
-- **VOICEVOX** (デフォルト) - 無料・ローカル実行
-- **Google Cloud TTS** - 高品質・API キー必要
+## 🛠️ Tech Stack
 
-## VS Code 拡張機能
+![Shell](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white)
+![VOICEVOX](https://img.shields.io/badge/VOICEVOX-Free-brightgreen?style=for-the-badge)
+![Claude%20Code](https://img.shields.io/badge/Claude%20Code-Plugin-F97316?style=for-the-badge)
+![macOS](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)
 
-ステータスバーからVoice ON/OFFとVB設定パネルを操作できます。
+---
 
-```bash
-cd vscode-extension
-npm install && npm run compile
-# VSIXパッケージ作成
-npx @vscode/vsce package --allow-missing-repository
-# インストール
-code --install-extension claude-voice-notify-panel-2.0.0.vsix
-```
+## 👤 Author
 
-MCP版とPlugin版の両方がインストールされている場合、VB設定パネル内でバックエンド切り替えが可能です。
+<div align="center">
 
-## MCP版との違い
+| | |
+|---|---|
+| **Yuya Kubouchi (MASA2 / MASA Sub)** | Beauty Salon Owner → AI Architect |
+| Location | Osaka, Japan |
+| System | AKATSUKI / Miyabi Society |
+| Identity | AI × Beauty Industry × Non-Engineer |
 
-Plugin版に**含まれないもの**（MCP版のみ）:
+*"I do not code first. I design the workflow and let AI execute it."*
 
-- TypeScript 8プロバイダー（CoeiroInk, AivisSpeech, StyleBertVITS2, Fish Audio, ElevenLabs, OpenAI）
-- セットアップウィザード（setup.sh）— 対話式7ステップガイド
-- Windows 対応（notify.ps1, setup.bat）
-- GitHub Star 通知ワークフロー（スターゲートは両方対応）
-- 自動更新スクリプト（update.sh）
+</div>
 
-Plugin版の**追加機能**:
+---
 
-- Hooks 自動通知（コンテキスト0トークン）
-- Skill オンデマンドロード（必要な時だけ展開）
-- /voice スラッシュコマンド
-- プラグインエコシステム統合
+<div align="center">
 
-## アンインストール
+**If this plugin saved tokens, give it a star.**
 
-```bash
-# 1. settings.json から削除
-# "voice-notify": true を削除
-
-# 2. プラグインディレクトリ削除
-rm -rf ~/.claude/plugins/voice-notify
-
-# 3. VS Code 拡張削除（入れている場合）
-code --uninstall-extension kubouchiyuya.claude-voice-notify-panel
-```
-
-## ライセンス
-
-MIT
-
-## 音声合成ソフトウェアの利用について
-
-VOICEVOX のキャラクターボイスは各キャラクターの利用規約に従ってください。
-商用利用時は各キャラクターの利用規約を確認してください。
+</div>
