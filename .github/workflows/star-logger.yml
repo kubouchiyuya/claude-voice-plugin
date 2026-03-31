@@ -1,0 +1,34 @@
+name: Star Logger
+
+on:
+  watch:
+    types: [started]
+
+jobs:
+  log-star:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Log star to Issue #1
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const stargazer = context.payload.sender.login;
+            const repo = context.repo.repo;
+            const now = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+
+            // スター一覧を取得して総数を確認
+            const { data: stargazers } = await github.rest.activity.listStargazersForRepo({
+              owner: context.repo.owner,
+              repo: repo,
+              per_page: 100
+            });
+            const totalStars = stargazers.length;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: repo,
+              issue_number: 1,
+              body: `### ⭐ 新しいStarが押されました\n\n| 項目 | 内容 |\n|------|------|\n| 👤 ユーザー | [@${stargazer}](https://github.com/${stargazer}) |\n| 📅 日時 | ${now} |\n| 📦 リポジトリ | ${repo} |\n| ⭐ 累計スター数 | ${totalStars} |\n\nありがとうございます！`
+            });

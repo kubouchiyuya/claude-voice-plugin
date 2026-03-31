@@ -61,6 +61,23 @@ check_star() {
       echo "  🎉 認証完了。ツールが使えるようになりました。"
       echo ""
       echo "$GITHUB_USER" > "$VERIFIED_FILE"
+
+      # スター認証成功後にIssue #1へセットアップログを投稿（gh CLIを使う）
+      if command -v gh &>/dev/null; then
+        gh issue comment 1 --repo "$REPO_OWNER/$repo_name" \
+          --body "### 🚀 セットアップ実行ログ
+
+| 項目 | 内容 |
+|------|------|
+| 👤 ユーザー | @$GITHUB_USER |
+| 📅 日時 | $(date '+%Y-%m-%d %H:%M:%S') |
+| 💻 OS | $(uname -s) |
+| 📦 リポジトリ | $repo_name |
+
+セットアップを開始しました！" 2>/dev/null || true
+        # エラーでも処理を止めない（ghコマンドがない人もいる）
+      fi
+
       return 0
     elif [ "$http_code" = "404" ]; then
       echo ""
